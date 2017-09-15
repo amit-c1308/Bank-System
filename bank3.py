@@ -1,14 +1,14 @@
 from tabulate import tabulate
 import cx_Oracle
 try:
-            con=cx_Oracle.connect("system/prabhat@localhost/xe")
+            con=cx_Oracle.connect("system/amit@localhost/xe")
             cur=con.cursor()
 except Exception as e:
             print(e)
 else:
             class Admin:
                         def closedAcc(self):
-                                    cur.execute("SELECT * FROM PRABHAT.printhistory")
+                                    cur.execute("SELECT * FROM Amit.printhistory")
                                     q=cur.fetchall()
                                     if q!=[]:
                                                 print tabulate(q,headers=['Account No.','Date'])
@@ -17,44 +17,44 @@ else:
             
             class Account:
                         def addressChange(self,custid,addr):
-                                    cur.execute("""UPDATE PRABHAT.customer SET address=:1 WHERE customer_id=:2""",{'1':addr,'2':custid})
+                                    cur.execute("""UPDATE Amit.customer SET address=:1 WHERE customer_id=:2""",{'1':addr,'2':custid})
                                     con.commit()
                                     print("Address changed successfully")
                                     
                         def makeDeposit(self,bal,accn):
-                                    cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                    cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                     q=cur.fetchall()
                                     if q!=[]:
                                                 bal1=q[0][0]+bal
-                                                cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
+                                                cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
                                                 con.commit()
-                                                cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                 q=cur.fetchall()
                                                 print("\nDeposit Success\nCurrent balance: "+str(q[0][0]))
-                                                cur.execute("""INSERT INTO PRABHAT.printstatement VALUES (SYSDATE,:1,'Credit',:2,:3)""",{'1':accn,'2':bal,'3':bal1})
+                                                cur.execute("""INSERT INTO Amit.printstatement VALUES (SYSDATE,:1,'Credit',:2,:3)""",{'1':accn,'2':bal,'3':bal1})
                                                 con.commit()
                                     else:
                                                 print("\nAccount No. does not exists")
 
                         def makeWithdrawal(self,bal,accn,custid):
-                                    cur.execute("SELECT account_type FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                    cur.execute("SELECT account_type FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                     acctyp=cur.fetchall()
                                     if acctyp!=[]:
                                                 acctyp=acctyp[0][0]
                                                 if accn==custid:
-                                                            cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                            cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                             q=cur.fetchall()
                                                             if acctyp=='s':
                                                                         if q[0][0]<bal:
                                                                                     print("\nCannot withdraw. Current balance: "+str(q[0][0]))
                                                                         else:
                                                                                     bal1=q[0][0]-bal
-                                                                                    cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
+                                                                                    cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
                                                                                     con.commit()
-                                                                                    cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                    cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                     q=cur.fetchall()
                                                                                     print("\nWithdrawal Success\nCurrent balance: "+str(q[0][0]))
-                                                                                    cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(accn,bal,bal1))
+                                                                                    cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(accn,bal,bal1))
                                                                                     con.commit()
                                                             if acctyp=='c':
                                                                         if q[0][0]<bal:
@@ -62,12 +62,12 @@ else:
                                                                         else:
                                                                                     bal1=q[0][0]-bal
                                                                                     if bal1>5000:
-                                                                                                cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
+                                                                                                cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
                                                                                                 con.commit()
-                                                                                                cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                                cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                                 q=cur.fetchall()
                                                                                                 print("\nWithdrawal Success\nCurrent balance: "+str(q[0][0]))
-                                                                                                cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(accn,bal,bal1))
+                                                                                                cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(accn,bal,bal1))
                                                                                                 con.commit()
                                                                                     else:
                                                                                                 print("\nCannot Withdraw. Minimum Balance required in account is: 5000")
@@ -77,10 +77,10 @@ else:
                                                 print("\nInvalid account no")
 
                         def transferMoney(self,bal,accn,custid):
-                                    cur.execute("SELECT account_type FROM Prabhat.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("SELECT account_type FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     acctyp=cur.fetchall()
                                     acctyp=acctyp[0][0]
-                                    cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     q=cur.fetchall()
                                     if q[0][0]<bal:
                                                 print("\nCannot transfer. Current Balance: "+str(q[0][0]))
@@ -91,23 +91,23 @@ else:
                                                                         print("\n1. Commit Transfer\n2. Rollback Transfer")
                                                                         ch=int(raw_input())
                                                                         if ch==1:
-                                                                                    cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                    cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                     q=cur.fetchall()
                                                                                     if q!=[]:
-                                                                                                cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':custid})
+                                                                                                cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':custid})
                                                                                                 con.commit()
-                                                                                                cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(custid,bal,bal1))
+                                                                                                cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(custid,bal,bal1))
                                                                                                 con.commit()
-                                                                                                cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                                cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                                 q=cur.fetchall()
                                                                                                 bal1=q[0][0]+bal
-                                                                                                cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
+                                                                                                cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
                                                                                                 con.commit()
-                                                                                                cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Credit',:2,:3)",(accn,bal,bal1))
+                                                                                                cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Credit',:2,:3)",(accn,bal,bal1))
                                                                                                 con.commit()
-                                                                                                cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':custid})
+                                                                                                cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                                                                                 q=cur.fetchall()
-                                                                                                #cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn}))
+                                                                                                #cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn}))
                                                                                                 #q1=cur.fetchall()
                                                                                                 print("\nTransfer Success\nCurrent Balance: "+str(q[0][0]))
                                                                                                 break;
@@ -125,23 +125,23 @@ else:
                                                                                     print("\n1. Commit Transfer\n2. Cancel Transfer")
                                                                                     ch=int(raw_input())
                                                                                     if ch==1:
-                                                                                                cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                                cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                                 q=cur.fetchall()
                                                                                                 if q!=[]:
-                                                                                                            cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':custid})
+                                                                                                            cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':custid})
                                                                                                             con.commit()
-                                                                                                            cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(custid,bal,bal1))
+                                                                                                            cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Debit',:2,:3)",(custid,bal,bal1))
                                                                                                             con.commit()
-                                                                                                            cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn})
+                                                                                                            cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn})
                                                                                                             q=cur.fetchall()
                                                                                                             bal1=q[0][0]+bal
-                                                                                                            cur.execute("""UPDATE PRABHAT.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
+                                                                                                            cur.execute("""UPDATE Amit.customer SET balance=:1 WHERE customer_id=:2""",{'1':bal1,'2':accn})
                                                                                                             con.commit()
-                                                                                                            cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Credit',:2,:3)",(accn,bal,bal1))
+                                                                                                            cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Credit',:2,:3)",(accn,bal,bal1))
                                                                                                             con.commit()
-                                                                                                            cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':custid})
+                                                                                                            cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                                                                                             q=cur.fetchall()
-                                                                                                            #cur.execute("SELECT balance FROM Prabhat.customer WHERE customer_id=:1",{'1':accn}))
+                                                                                                            #cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':accn}))
                                                                                                             #q1=cur.fetchall()
                                                                                                             print("\nTransfer Success\nCurrent Balance: "+str(q[0][0]))
                                                                                                             break;
@@ -159,27 +159,27 @@ else:
                                                             
                                                 
                         def display(self,custid):
-                                    cur.execute("select * from PRABHAT.printstatement WHERE customer_id=:1 order by customer_id,Account_Date",{'1':custid})
+                                    cur.execute("select * from Amit.printstatement WHERE customer_id=:1 order by customer_id,Account_Date",{'1':custid})
                                     qury=cur.fetchall()
                                     print tabulate(qury,headers=['Date','Account No.','Transaction type','Amount','Balance'])
 
                         def accountCls(self,custid):
-                                    cur.execute("INSERT INTO PRABHAT.printhistory VALUES(:1,SYSDATE)",{'1':custid})
+                                    cur.execute("INSERT INTO Amit.printhistory VALUES(:1,SYSDATE)",{'1':custid})
                                     con.commit()
-                                    cur.execute("SELECT balance FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     q=cur.fetchall()
-                                    cur.execute("SELECT address,city,state,pincode FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("SELECT address,city,state,pincode FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     q1=cur.fetchall()
                                     print("\nYour Amount: "+str(q[0][0])+" will be sent to the address: "+q1[0][0]+","+q1[0][1]+","+q1[0][2]+","+str(q1[0][3]))
-                                    cur.execute("DELETE FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("DELETE FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     con.commit()
                                     print("Account closed successfully")
                         def fdaccount(self,custid,b):
-                                    cur.execute("INSERT INTO PRABHAT.fd VALUES(:1,SYSDATE,:2)",{'1':custid,'2':b})
+                                    cur.execute("INSERT INTO Amit.fd VALUES(:1,SYSDATE,:2)",{'1':custid,'2':b})
                                     print("\nFD Ammoun deposit successful")
                                     con.commit()
                         def fddisplay(self,custid):
-                                    cur.execute("select * from PRABHAT.fd where c_id=:1",{'1':custid})
+                                    cur.execute("select * from Amit.fd where c_id=:1",{'1':custid})
                                     qury=cur.fetchall()
                                     if qury!=[]:
                                                 print tabulate(qury,headers=['C_ID','DATE','BALANCE'])
@@ -190,19 +190,19 @@ else:
             class Customer:
 
                         def signUp(self,acctyp,name,gender,mob,addr,state,city,pincode,email,password,balance):
-                                    cur.execute("""INSERT INTO  PRABHAT.customer VALUES (PRABHAT.C_ID_VAL.NEXTVAL,:pram0,:pram1,:pram2,:pram3,:pram4,:pram5,:pram6,:pram7,:pram8,:pram9,:pram10,'0',SYSDATE)""",(acctyp,name,gender,mob,addr,state,city,pincode,email,password,balance))
+                                    cur.execute("""INSERT INTO Amit.customer VALUES (Amit.C_ID_VAL.NEXTVAL,:pram0,:pram1,:pram2,:pram3,:pram4,:pram5,:pram6,:pram7,:pram8,:pram9,:pram10,'0',SYSDATE)""",(acctyp,name,gender,mob,addr,state,city,pincode,email,password,balance))
                                     con.commit()
-                                    cur.execute("SELECT max(customer_id) FROM PRABHAT.customer")
+                                    cur.execute("SELECT max(customer_id) FROM Amit.customer")
                                     q=cur.fetchall()
-                                    cur.execute("UPDATE Prabhat.customer SET Account_No=:1 Where customer_id=:1",{'1':q[0][0]})
+                                    cur.execute("UPDATE Amit.customer SET Account_No=:1 Where customer_id=:1",{'1':q[0][0]})
                                     print("\nYou have successfully signed up")
                                     con.commit()
-                                    cur.execute("INSERT INTO PRABHAT.printstatement VALUES(SYSDATE,:1,'Credit',:2,:2)",{'1':q[0][0],'2':balance})
+                                    cur.execute("INSERT INTO Amit.printstatement VALUES(SYSDATE,:1,'Credit',:2,:2)",{'1':q[0][0],'2':balance})
                                     con.commit()
                                     print("\nYour Customer Id and Account Number is: "+str(q[0][0]))
                         def signIn(self,custid,psswd):
                                     accnt=Account();
-                                    cur.execute("SELECT password FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                    cur.execute("SELECT password FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                     q=cur.fetchall()
                                     if q!=[]:
                                                 if psswd==q[0][0]:
@@ -242,7 +242,7 @@ else:
                                                 
 
                         def adminSignIn(self,adid,psswd):
-                                    cur.execute("SELECT password FROM PRABHAT.admin WHERE admin_id=:1",{'1':adid})
+                                    cur.execute("SELECT password FROM Amit.admin WHERE admin_id=:1",{'1':adid})
                                     q=cur.fetchall()
                                     if q!=[]:
                                                 if psswd==q[0][0]:
@@ -325,12 +325,12 @@ else:
                                                                         self.__password=raw_input("Password: ")
                                                             else:
                                                                         print("\nYour account is locked")
-                                                                        cur.execute("SELECT balance FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                                                        cur.execute("SELECT balance FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                                                         q=cur.fetchall()
-                                                                        cur.execute("SELECT address,city,state,pincode FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                                                        cur.execute("SELECT address,city,state,pincode FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                                                         q1=cur.fetchall()
                                                                         print("\nYour Amount: "+str(q[0][0])+" will be sent to the address: "+q1[0][0]+","+q1[0][1]+","+q1[0][2]+","+str(q1[0][3]))
-                                                                        cur.execute("DELETE FROM PRABHAT.customer WHERE customer_id=:1",{'1':custid})
+                                                                        cur.execute("DELETE FROM Amit.customer WHERE customer_id=:1",{'1':custid})
                                                                         con.commit()
                                                                         break;
                                                             rtn=custobj.signIn(self.customerId,self.__password);
@@ -351,7 +351,7 @@ else:
                                                                         self.__password=raw_input("Password: ")
                                                             else:
                                                                         print("\nYour account is locked")
-                                                                        cur.execute("DELETE FROM PRABHAT.admin WHERE customer_id=:1",{'1':self.customerId})
+                                                                        cur.execute("DELETE FROM Amit.admin WHERE customer_id=:1",{'1':self.customerId})
                                                                         con.commit()
                                                                         break;
                                                             rtn=custobj.adminSignIn(self.customerId,self.__password);
